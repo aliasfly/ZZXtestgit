@@ -1,0 +1,23 @@
+include _building.conf  
+include _compiler.conf 
+
+all:$(TARGET_NAME).elf $(TARGET_NAME).hex $(TARGET_NAME).bin
+	mkdir -p Obj
+	mv $(BUILD_PATH)$(TARGET_NAME).elf $(OBJECT_PATH)
+	mv $(BUILD_PATH)$(TARGET_NAME).hex $(OBJECT_PATH)
+	mv $(BUILD_PATH)$(TARGET_NAME).bin $(OBJECT_PATH)
+	mv $(BUILD_PATH)*.o $(OBJECT_PATH)
+
+$(TARGET_NAME).elf: $(START_NAME_PATH) $(SOURCE_NAME_PATH)
+	$(AS) $(S_OBJECT_OPTION) $(START_NAME_PATH) -o Startup.o
+	$(CC) $(C_OBJECT_OPTION) $(HEAD_PATH) $(SOURCE_NAME_PATH)
+	$(CC) $(LINK_OPTION) -T$(LINK_NAME_PATH) $(BUILD_PATH)*.o -o $(TARGET_NAME).elf
+
+$(TARGET_NAME).hex: $(TARGET_NAME).elf
+	$(OBJCOPY) $(HEX_OPTION) $(TARGET_NAME).elf $(TARGET_NAME).hex
+
+$(TARGET_NAME).bin: $(TARGET_NAME).elf
+	$(OBJCOPY) $(BIN_OPTION) $(TARGET_NAME).elf $(TARGET_NAME).bin
+
+clean: 
+	rm -rf Obj
